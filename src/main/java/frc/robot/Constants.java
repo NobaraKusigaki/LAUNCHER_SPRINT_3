@@ -10,7 +10,11 @@ public static final int BOOST_UP_MOTOR_ID = 8;
 
 // Sensor IDs
 public static final int GAME_PIECE_SENSOR_ID = 0;
-public static final double INPUT_MAX_OUTPUT = 0;
+public static final double INPUT_MAX_OUTPUT = 0.5;
+
+public static final double BOOST_POWER = 0.5;
+public static final double RAMP_RATE = 0.05;
+public static final int DEBOUNCE_COUNT = 4;
 
 public static final class LimeLight {
   public static final String limelightFront = "limelight-front";

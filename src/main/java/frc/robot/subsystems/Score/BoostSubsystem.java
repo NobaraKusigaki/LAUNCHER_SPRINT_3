@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -36,9 +37,22 @@ public class BoostSubsystem extends SubsystemBase {
     PersistMode.kPersistParameters);
     
   }
+  public double setpower(double power ){
+    downMotor.set(power);
+    upMotor.set(power);
+    return power;
+  }
+
+  public void stopMotors(){
+    downMotor.stopMotor();
+    upMotor.stopMotor();
+  }
+
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+  SmartDashboard.putNumber("Boost Down Motor Power", downMotor.get());
+  SmartDashboard.putNumber("Boost Up Motor Power", upMotor.get());
+
   }
 }
