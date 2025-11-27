@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EncoderSubsystem extends SubsystemBase {
 
-    private  DutyCycleEncoder encoder;
+    private DutyCycleEncoder encoder;
 
     public void Encoder(int port) {
         encoder = new DutyCycleEncoder(port);

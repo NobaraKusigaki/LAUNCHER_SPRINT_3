@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DutyCycle;
-
 public final class Constants {
 
 // Motor IDs
@@ -118,12 +116,20 @@ public static final int SYSTEM = 0;
         public static double targetPosition = 0.0;
 
         public static final double posZero = 0.0;
-        public static final double posNoventa = 90.0;
-        private static final double toleranciamin = 0.2;
-        private static final double maxoutput = 0.7;
+        public static final double posQuarentaeCinco = 90.0;
+        public static final double toleranciaMin = 0.2;
+        public static final double maxOutput = 0.7;
     }
 
     public static final class Encoder {
         public static final int encoderId = 4;
+
+        public static final int portaEncoderA = 0; 
+        public static final int portaEncoderB = 1;
+
+        public static final double wheelDiameterMeters = 0.1524;
+        public static final double countsPerRev = 2048.0;
+        public static final double gearRatio = 1.0;
+        public static final boolean ReverseDirection = true; // inverter se precisar
     }
 }

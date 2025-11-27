@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class CollectManager extends SubsystemBase {
 
   private final CollectSubsystem collect;
+
   private boolean lastState = false;
   private boolean piecein = false;
 
@@ -26,5 +27,17 @@ public class CollectManager extends SubsystemBase {
 
   public boolean isPieceInside() {
     return lastState;
+  }
+
+  public void retractIn(double power) {
+    collect.setRetractPower(power);
+  }
+
+  public void retractOut(double power) {
+    collect.setRetractPower(-power);
+  }
+
+  public void stopRetract() {
+    collect.stopRetract();
   }
 }

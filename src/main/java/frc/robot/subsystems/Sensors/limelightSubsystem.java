@@ -6,12 +6,12 @@ import frc.robot.Constants;
 
 public class limelightSubsystem {
 
-    private final NetworkTable llFront;
-    private final NetworkTable llBack;
+    private NetworkTable llFront;
+    private NetworkTable llBack;
 
     public void LimeLightSubsystem() {
-        llFront = NetworkTableInstance.getDefault().getTable(Constants.limelightFront);
-        llBack = NetworkTableInstance.getDefault().getTable(Constants.limelightBack);
+        llFront = NetworkTableInstance.getDefault().getTable(Constants.LimeLight.limelightFront);
+        llBack = NetworkTableInstance.getDefault().getTable(Constants.LimeLight.limelightBack);
     }
 
     public double getFrontTX() { return llFront.getEntry("tx").getDouble(0); }

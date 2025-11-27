@@ -12,7 +12,8 @@ import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Score.CollectSubsystem;
 import frc.robot.subsystems.Score.InputManager;
 import frc.robot.subsystems.Score.InputSubsystem;
-import frc.robot.subsystems.Sensors.ThroughBore;
+import frc.robot.subsystems.Sensors.EncoderSubsystem;
+import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,7 +38,8 @@ public class RobotContainer {
   private final InputManager inputManager = new InputManager();
 
     private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-    private final ThroughBore rightEncoder = new ThroughBore();
+    private final ThroughBoreSubsystem rightEncoder = new ThroughBoreSubsystem();
+    private final EncoderSubsystem leftencoder = new EncoderSubsystem();
 
     private final LimelightResults llfront = new LimelightResults();
     private final LimelightResults llback = new LimelightResults();
