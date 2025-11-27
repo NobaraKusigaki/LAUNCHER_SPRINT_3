@@ -3,7 +3,7 @@ package frc.robot.subsystems.Score;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class LimeLight {
+public class LimeLightSubsystem {
 
     private final NetworkTable llFront;
     private final NetworkTable llBack;

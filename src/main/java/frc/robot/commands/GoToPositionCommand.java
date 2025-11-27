@@ -2,72 +2,100 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Encoder;
-import edu.wpi.first.wpilibj.Joystick;
+
 import frc.robot.subsystems.AngularSubsystem;
+import frc.robot.subsystems.BoostSubsystem;
+import frc.robot.subsystems.ColletSubsystem;
 import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.Encoder;
+import frc.robot.subsystems.Score.LimeLightSubsystem;
+
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.MathUtil;
 
-public class GoToPositionCommand extends Command { // OK, n mexe
+public class GoToPositionCommand extends Command {
 
-    private final Arm arm;
-    private final Encoder encoder;
     private final AngularSubsystem angular;
-    private final InputSubsystem sensor;
+    private final BoostSubsystem boost;
+    private final ColletSubsystem collet;
+    private final Encoder encoder;
+    private final InputSubsystem input;
+    private final LimeLightSubsystem lime;
     private final Joystick controle;
 
-    private boolean isMovingToTarget = Constants.Angular.isMovingToTarget;
-    private double targetPosition = Constants.Angular.targetPosition;
-    
-    private static final double poszero = Constants.Angular.posZero;    
-    private static final double posnov = Constants.Angular.posNoventa; 
-    private static final double toleranciamin = Constants.Angular.toleranciaMin;  
-    private static final double toleranciamax = Constants.Angular.toleranciaMax;
-    private static final double maxoutput = Constants.Angular.maxOutput;  
-    private static final double manual = Constants.Angular.manualMove; 
+    private boolean movingToTarget = false;
+    private double targetPosition = Constants.Angular.posZero;
 
-    public GoToPositionCommand(InputSubsystem sensor, Encoder encoder, Joystick controle, AngularSubsystem angular) {
-        this.sensor = sensor;
-        this.encoder = encoder;
-        this.controle = controle;
+    private static final double POS_ZERO = Constants.Angular.posZero;
+    private static final double POS_90 = Constants.Angular.posNoventa;
+
+    private static final double TOL = Constants.Angular.toleranciaMin;
+    private static final double MAX_OUT = Constants.Angular.maxOutput;
+    private static final double MANUAL = Constants.Angular.manualMove;
+
+    public GoToPositionCommand(
+        AngularSubsystem angular,
+        BoostSubsystem boost,
+        ColletSubsystem collet,
+        Encoder encoder,
+        InputSubsystem input,
+        LimeLightSubsystem lime,
+        Joystick controle
+    ) {
         this.angular = angular;
-        addRequirements(angular);
+        this.boost = boost;
+        this.collet = collet;
+        this.encoder = encoder;
+        this.input = input;
+        this.lime = lime;
+        this.controle = controle;
+
+        addRequirements(angular, boost, collet);
     }
 
     @Override
     public void initialize() {
-        SmartDashboard.putString("Angular/Status", "Pronto!");
+        SmartDashboard.putString("GoToPosition/Status", "Pronto");
     }
 
     @Override
     public void execute() {
+
+        double current = encoder.getPosition();
+        boolean hasPiece = input.hasPiece();
+        boolean hasTarget = lime.frontHasTarget();
+        double ty = lime.getFrontTY();
+
+        if (hasPiece && hasTarget) {
+
+            targetPosition = POS_90;
+            movingToTarget = true;
+            double distance = calcDistance(ty);
+            SmartDashboard.putNumber("Shooter/Distance", distance);
+            double power = calcShootPower(distance);
+            SmartDashboard.putNumber("Shooter/Power", power);
+            boost.shoot(power);
+            collet.hold();
+
+            moveToTarget();
+            return;
+        }
+
         double L2 = controle.getRawAxis(Constants.Joystick.L2);
         double R2 = controle.getRawAxis(Constants.Joystick.R2);
 
-        double current = encoder.getPosition();
-
-        if (L2 > toleranciamin && current > toleranciamin) {
-            angular.move(manual);
+        if (L2 > TOL && current > POS_ZERO) {
+            angular.move(MANUAL);
             return;
         }
 
-        if (R2 > toleranciamin && current < toleranciamax) {
-            angular.move(-manual);
+        if (R2 > TOL && current < POS_90) {
+            angular.move(-MANUAL);
             return;
         }
 
-        if (controle.getRawButtonPressed(botaoY)) {
-            targetPosition = posnov;
-            isMovingToTarget = true;
-        }
-
-        if (controle.getRawButtonPressed(botaoB)) {
-            targetPosition = poszero;
-            isMovingToTarget = true;
-        }
-
-        if (isMovingToTarget) {
+        if (movingToTarget) {
             moveToTarget();
         } else {
             angular.stop();
@@ -79,20 +107,33 @@ public class GoToPositionCommand extends Command { // OK, n mexe
         double current = encoder.getPosition();
         double error = targetPosition - current;
 
-        if (Math.abs(error) <= toleranciamin) {
+        if (Math.abs(error) <= TOL) {
             angular.stop();
-            isMovingToTarget = false;
-            SmartDashboard.putString("Arm/Status", "Alvo atingido!");
+            movingToTarget = false;
+
+            SmartDashboard.putString("GoToPosition/Status", "Alvo atingido");
             return;
         }
 
-        double output = (error < 0) ? maxoutput : -maxoutput;
+        double output = (error < 0) ? MAX_OUT : -MAX_OUT;
 
         angular.move(output);
 
         SmartDashboard.putNumber("Angular/Error", error);
         SmartDashboard.putNumber("Angular/Output", output);
-        SmartDashboard.putString("Angular/Status", "Movendo para alvo");
+    }
+
+    private double calcDistance(double ty) {
+        double h1 = Constants.LimeLight.limeLightHeight;
+        double h2 = Constants.LimeLight.tagHeight;
+        double a1 = Constants.LimeLight.limeLightAngle;
+
+        return (h2 - h1) / Math.tan(Math.toRadians(a1 + ty));
+    }
+
+    private double calcShootPower(double distance) {
+        double p = 0.05 * distance + 0.3;
+        return MathUtil.clamp(p, 0.25, 1.0);
     }
 
     @Override
@@ -103,5 +144,7 @@ public class GoToPositionCommand extends Command { // OK, n mexe
     @Override
     public void end(boolean interrupted) {
         angular.stop();
+        boost.stop();
+        collet.stop();
     }
 }

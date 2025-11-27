@@ -7,7 +7,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.utils.MathUtils;
 
-public class DefaultDriveCommand extends Command { //OK, n mexe
+public class DefaultDriveCommand extends Command {
 
     private final Drivetrain drivetrain;
     private final Joystick controle1;

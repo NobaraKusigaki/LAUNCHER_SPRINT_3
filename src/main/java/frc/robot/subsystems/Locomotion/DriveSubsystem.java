@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class DriveSubsystem extends SubsystemBase { //Ok, n mexe
+public class DriveSubsystem extends SubsystemBase {
 
     private final VictorSPX leftFront = motorFactory(Constants.Drivetrain.frenteLeft, Constants.Drivetrain.leftInvertido);
     private final VictorSPX leftBack = motorFactory(Constants.Drivetrain.trasLeft, Constants.Drivetrain.leftInvertido);
