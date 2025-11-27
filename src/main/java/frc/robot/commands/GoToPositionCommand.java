@@ -3,12 +3,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 
-import frc.robot.subsystems.AngularSubsystem;
-import frc.robot.subsystems.BoostSubsystem;
-import frc.robot.subsystems.ColletSubsystem;
-import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.Score.AngularSubsystem;
+import frc.robot.subsystems.Score.BoostSubsystem;
+import frc.robot.subsystems.Score.CollectSubsystem;
+import frc.robot.subsystems.Score.InputSubsystem;
 import frc.robot.subsystems.Sensors.LimelightSubsystem;
-import frc.robot.subsystems.Encoder;
+import frc.robot.subsystems.Sensors.EncoderSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
@@ -17,11 +17,10 @@ public class GoToPositionCommand extends Command {
 
     private final AngularSubsystem angular;
     private final BoostSubsystem boost;
-    private final ColletSubsystem collet;
-    private final Encoder encoder;
+    private final CollectSubsystem  collect;
+    private final EncoderSubsystem encoder;
     private final InputSubsystem input;
     private final LimelightSubsystem lime;
-    // private final Joystick PS5Controller;
 
     private boolean movingToTarget = false;
     private double targetPosition = Constants.Angular.posZero;
@@ -31,26 +30,25 @@ public class GoToPositionCommand extends Command {
 
     private static final double TOL = Constants.Angular.toleranciaMin;
     private static final double MAX_OUT = Constants.Angular.maxOutput;
-    // private static final double MANUAL = Constants.Angular.manualMove;
+
 
     public GoToPositionCommand(
         AngularSubsystem angular,
         BoostSubsystem boost,
-        ColletSubsystem collet,
-        Encoder encoder,
+        CollectSubsystem collect,
+        EncoderSubsystem encoder,
         InputSubsystem input,
-        LimelightSubsystem lime,
-        Joystick controle
-    ) {
+        LimelightSubsystem lime
+        )
+         {
         this.angular = angular;
         this.boost = boost;
-        this.collet = collet;
+        this.collect = collect;
         this.encoder = encoder;
         this.input = input;
         this.lime = lime;
-        this.controle = controle;
 
-        addRequirements(angular, boost, collet);
+        addRequirements(angular, boost, collect);
     }
 
     @Override
@@ -75,7 +73,7 @@ public class GoToPositionCommand extends Command {
             double power = calcShootPower(distance);
             SmartDashboard.putNumber("Shooter/Power", power);
             boost.shoot(power);
-            collet.hold();
+            collect.hold();
 
             moveToTarget();
             return;
@@ -144,6 +142,6 @@ public class GoToPositionCommand extends Command {
     public void end(boolean interrupted) {
         angular.stop();
         boost.stop();
-        collet.stop();
+        collect.stop();
     }
 }

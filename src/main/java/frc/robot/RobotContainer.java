@@ -12,6 +12,7 @@ import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Score.CollectSubsystem;
 import frc.robot.subsystems.Score.InputManager;
 import frc.robot.subsystems.Score.InputSubsystem;
+import frc.robot.subsystems.Sensors.ThroughBore;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,7 +36,6 @@ public class RobotContainer {
   private final CollectManager collectManager = new CollectManager(collectSubsystem);
   private final InputManager inputManager = new InputManager();
 
-  //// VITOR ===============
     private final DriveSubsystem driveSubsystem = new DriveSubsystem();
     private final ThroughBore rightEncoder = new ThroughBore();
 
@@ -54,7 +54,7 @@ public class RobotContainer {
 
    
     public Command getTeleopCommand() {
-        return defaultDriveCommand.alongWith(goToPositionCommand);
+        // return defaultDriveCommand.alongWith(goToPositionCommand);
     }    
 
   public RobotContainer() {
