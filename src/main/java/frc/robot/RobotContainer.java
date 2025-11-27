@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Locomotion.DriveSubsystem;
 import frc.robot.subsystems.Score.AngularManager;
 import frc.robot.subsystems.Score.AngularSubsystem;
 import frc.robot.subsystems.Score.BoostManager;
@@ -14,15 +15,17 @@ import frc.robot.subsystems.Score.InputSubsystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.Drivetrain;
+import frc.robot.Constants.LimeLight;
+import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.GoToPositionCommand;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LimeLight;
+
 
 public class RobotContainer {
 
-  private final PS5Controller sJoystick = new PS5Controller(Constants.PS5Controller.joystickID);
-  private final Joystick ljoystick = new Joystick(Constants.LJoystick.joystickID);
+  private final PS5Controller systemController = new PS5Controller(Constants.PS5Controller.joystickID);
+  private final Joystick driveController = new Joystick(Constants.driveController.joystickID);
 
   private final CollectSubsystem collectSubsystem = new CollectSubsystem();
   private final BoostSubsystem boostSubsystem = new BoostSubsystem();
@@ -33,57 +36,59 @@ public class RobotContainer {
   private final InputManager inputManager = new InputManager();
 
   //// VITOR ===============
-    private final DriveSubsystem driveSubsystem = new Drivetrain();
+    private final DriveSubsystem driveSubsystem = new DriveSubsystem();
     private final ThroughBore rightEncoder = new ThroughBore();
 
-    private final LimeLight llfront = new LimeLight();
-    private final LimeLight llback = new LimeLight();
+    private final LimelightResults llfront = new LimelightResults();
+    private final LimelightResults llback = new LimelightResults();
 
-    private final DefaultDriveCommand defaultDriveCommand = new DefaultDriveCommand(driveSubsystem, ljoystick);
-    private final GoToPositionCommand goToPositionCommand = new GoToPositionCommand(
-        inputManager.getInputSubsystem(),
-        angularManager.getEncoder(),
-        sjoystick,
-        angularManager.getAngularSubsystem(),
-        llfront,
-        boostManager.getBoostSubsystem()
-    );
+    
+    // private final GoToPositionCommand goToPositionCommand = new GoToPositionCommand(
+    //     inputManager.getInputSubsystem(),
+    //     angularManager.getEncoder(),
+    //     systemController,
+    //     angularManager.getAngularSubsystem(),
+    //     llfront,
+    //     boostManager.getBoostSubsystem()
+    // );
 
-    driveSubsystem.setDefaultCommand(defaultDriveCommand);
+   
     public Command getTeleopCommand() {
         return defaultDriveCommand.alongWith(goToPositionCommand);
     }    
 
   public RobotContainer() {
+    driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem,driveController ));
+        
       configureBindings();
   }
 
   private void configureBindings() {
 
     //pos minima 
-    new Trigger(() -> PS5Controller.getSquareButton())
+    new Trigger(() -> systemController.getSquareButton())
     .onTrue(new InstantCommand(() -> angularManager.calibrateMinPos()));
 
-    new Trigger(() -> PS5Controller.getTriangleButton())
+    new Trigger(() -> systemController.getTriangleButton())
     .onTrue(new InstantCommand(() -> angularManager.calibrateMaxPos()));
 
     //########## MANUAL DO ANGULAR ##########
-    new Trigger(() -> PS5Controller.getR2Axis() > 0.04)
+    new Trigger(() -> systemController.getR2Axis() > 0.04)
     .onTrue(new InstantCommand(() -> angularManager.setManual()))
     .whileTrue(new InstantCommand(() -> angularManager.setManualPower(0.5)))
     .onFalse(new InstantCommand(() -> angularManager.stopManual()));
 
-    new Trigger(() -> PS5Controller.getL2Axis() > 0.04)
+    new Trigger(() -> systemController.getL2Axis() > 0.04)
     .onTrue(new InstantCommand(() -> angularManager.setManual()))
     .whileTrue(new InstantCommand(() -> angularManager.setManualPower(-0.5)))
     .onFalse(new InstantCommand(() -> angularManager.stopManual()));
 
 
     //########## AUTOMÁTICO ANGULAR ##########
-    new Trigger(() -> PS5Controller.getL1Button())
+    new Trigger(() -> systemController.getL1Button())
     .onTrue(new InstantCommand(() -> angularManager.goToMin()));
 
-    new Trigger(() -> PS5Controller.getR1Button())
+    new Trigger(() -> systemController.getR1Button())
     .onTrue(new InstantCommand(() -> angularManager.goToMax()));
 
   }
@@ -94,7 +99,7 @@ public class RobotContainer {
   ///// VITOR ==============
   /// 
   /// 
-    public Drivetrain getDriveSubsystem() {
+    public DriveSubsystem getDriveSubsystem() {
         return driveSubsystem;
     }
 
@@ -102,7 +107,4 @@ public class RobotContainer {
         return limelight;
     }
 
-    public Command getTeleopCommand() {
-        return null;
-    }
 }

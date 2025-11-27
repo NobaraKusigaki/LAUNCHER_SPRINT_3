@@ -1,13 +1,13 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class EncoderSubsystem extends SubsystemBase {
 
-    private final DutyCycleEncoder encoder;
+    private  DutyCycleEncoder encoder;
 
-    public Encoder(int port) {
+    public void Encoder(int port) {
         encoder = new DutyCycleEncoder(port);
     }
 

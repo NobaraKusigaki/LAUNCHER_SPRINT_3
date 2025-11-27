@@ -1,14 +1,15 @@
-package frc.robot.subsystems.Score;
+package frc.robot.subsystems.Sensors;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Constants;
 
-public class LimeLightSubsystem {
+public class limelightSubsystem {
 
     private final NetworkTable llFront;
     private final NetworkTable llBack;
 
-    public LimeLight() {
+    public void LimeLightSubsystem() {
         llFront = NetworkTableInstance.getDefault().getTable(Constants.limelightFront);
         llBack = NetworkTableInstance.getDefault().getTable(Constants.limelightBack);
     }

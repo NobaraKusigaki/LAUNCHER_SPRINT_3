@@ -7,9 +7,8 @@ import frc.robot.subsystems.AngularSubsystem;
 import frc.robot.subsystems.BoostSubsystem;
 import frc.robot.subsystems.ColletSubsystem;
 import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.Sensors.LimelightSubsystem;
 import frc.robot.subsystems.Encoder;
-import frc.robot.subsystems.Score.LimeLightSubsystem;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.MathUtil;
@@ -21,7 +20,7 @@ public class GoToPositionCommand extends Command {
     private final ColletSubsystem collet;
     private final Encoder encoder;
     private final InputSubsystem input;
-    private final LimeLightSubsystem lime;
+    private final LimelightSubsystem lime;
     // private final Joystick PS5Controller;
 
     private boolean movingToTarget = false;
@@ -40,7 +39,7 @@ public class GoToPositionCommand extends Command {
         ColletSubsystem collet,
         Encoder encoder,
         InputSubsystem input,
-        LimeLightSubsystem lime,
+        LimelightSubsystem lime,
         Joystick controle
     ) {
         this.angular = angular;

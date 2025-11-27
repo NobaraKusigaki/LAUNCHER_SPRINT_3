@@ -4,44 +4,45 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Locomotion.DriveSubsystem;
 import frc.robot.utils.MathUtils;
 
 public class DefaultDriveCommand extends Command {
 
-    private final Drivetrain drivetrain;
-    private final Joystick ljoystick;
+    private final DriveSubsystem driveSubsystem;
+    private final Joystick driveController;
 
-    private double speed = Constants.Joystick.speedB;
+    private double speed = Constants.driveController.speedB;
     private final MathUtils math = new MathUtils();
 
-    public DefaultDriveCommand(Drivetrain drivetrain, Joystick lJoystick) {
-        this.drivetrain = drivetrain;
-        this.ljoystick = lJoystick;
-        addRequirements(drivetrain);
+    public DefaultDriveCommand(DriveSubsystem driveSubsystem, Joystick driveController) {
+        this.driveSubsystem = driveSubsystem;
+        this.driveController = driveController;
+        addRequirements(driveSubsystem);
     }
 
     @Override
     public void execute() {
-        double eixoX1 = ljoystick.getRawAxis(Constants.Joystick.eixoX);
-        double eixoY1 = -ljoystick.getRawAxis(Constants.Joystick.eixoY);
-        double eixoX2 = ljoystick.getRawAxis(Constants.Joystick.eixoX2);
-        double eixoY2 = -ljoystick.getRawAxis(Constants.Joystick.eixoY2);
+        double eixoX1 = driveController.getRawAxis(Constants.driveController.eixoX);
+        double eixoY1 = -driveController.getRawAxis(Constants.driveController.eixoY);
+        double eixoX2 = driveController.getRawAxis(Constants.driveController.eixoX2);
+        double eixoY2 = -driveController.getRawAxis(Constants.driveController.eixoY2);
 
-        // double L2 = ljoystick.getRawAxis(Constants.Joystick.L2);
-        // double R2 = ljoystick.getRawAxis(Constants.Joystick.R2);
-        int pov = ljoystick.getPOV();
+        int pov = driveController.getPOV();
 
-        boolean botaoA = ljoystick.getRawButton(Constants.Joystick.botaoA);
-        boolean botaoB = ljoystick.getRawButton(Constants.Joystick.botaoB);
-        boolean botaoX = ljoystick.getRawButton(Constants.Joystick.botaoX);
+        boolean botaoA = driveController.getRawButton(Constants.driveController.botaoA);
+        boolean botaoB = driveController.getRawButton(Constants.driveController.botaoB);
+        boolean botaoX = driveController.getRawButton(Constants.driveController.botaoX);
 
-        if (botaoA) speed = Constants.Joystick.speedA;
-        else if (botaoB) speed = Constants.Joystick.speedB;
-        else if (botaoX) speed = Constants.Joystick.speedX;
+        if (botaoA) speed = Constants.driveController.speedA;
+        else if (botaoB) speed = Constants.driveController.speedB;
+        else if (botaoX) speed = Constants.driveController.speedX;
 
         double velEsq = 0;
         double velDir = 0;
+
+        double L2 = driveController.getRawAxis(Constants.driveController.L2);
+        double R2 = driveController.getRawAxis(Constants.driveController.R2);
 
         if (L2 != 0) {
             velEsq = velDir = math.calcularL2(L2, R2, speed);
@@ -58,7 +59,7 @@ public class DefaultDriveCommand extends Command {
             velDir = velocidades[1];
         }
 
-        drivetrain.drive(velEsq, velDir);
+        driveSubsystem.drive(velEsq, velDir);
 
         SmartDashboard.putNumber("Velocidade Esquerda", velEsq);
         SmartDashboard.putNumber("Velocidade Direita", velDir);
@@ -79,7 +80,7 @@ public class DefaultDriveCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.stop();
+        driveSubsystem.stop();
     }
 
     @Override

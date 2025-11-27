@@ -67,7 +67,7 @@ public static final int SYSTEM = 0;
         public static final double deadzone = 0.04;
     }
 
-    public static final class LJoystick {
+    public static final class driveController {
         public static final int joystickID = 3;
 
         public static final int eixoX = 0;
