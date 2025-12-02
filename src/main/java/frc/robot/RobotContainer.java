@@ -1,11 +1,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.subsystems.Locomotion.DriveSubsystem;
 import frc.robot.subsystems.Score.AngularManager;
-import frc.robot.subsystems.Score.AngularSubsystem;
 import frc.robot.subsystems.Score.BoostManager;
 import frc.robot.subsystems.Score.BoostSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
@@ -14,99 +18,103 @@ import frc.robot.subsystems.Score.InputManager;
 import frc.robot.subsystems.Score.InputSubsystem;
 import frc.robot.subsystems.Sensors.EncoderSubsystem;
 import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.Drivetrain;
-import frc.robot.Constants.LimeLight;
-import frc.robot.LimelightHelpers.LimelightResults;
+import frc.robot.subsystems.Sensors.limelightSubsystem;
+
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.commands.GoToPositionCommand;
 
-
 public class RobotContainer {
 
-  private final PS5Controller systemController = new PS5Controller(Constants.PS5Controller.joystickID);
-  private final Joystick driveController = new Joystick(Constants.driveController.joystickID);
+    private final PS5Controller systemController = new PS5Controller(1);
+    private final Joystick driveController =
+        new Joystick(Constants.driveController.joystickID);
 
-  private final CollectSubsystem collectSubsystem = new CollectSubsystem();
-  private final BoostSubsystem boostSubsystem = new BoostSubsystem();
-  
-  private final AngularManager angularManager = new AngularManager();
-  private final BoostManager boostManager = new BoostManager(boostSubsystem, collectSubsystem);
-  private final CollectManager collectManager = new CollectManager(collectSubsystem);
-  private final InputManager inputManager = new InputManager();
+    private final CollectSubsystem collectSubsystem = new CollectSubsystem();
+    private final BoostSubsystem boostSubsystem = new BoostSubsystem();
+    private final AngularManager angularManager = new AngularManager();
+
+    private final BoostManager boostManager =
+        new BoostManager(boostSubsystem, collectSubsystem);
+    private final CollectManager collectManager =
+        new CollectManager(collectSubsystem);
+    private final InputManager inputManager = new InputManager();
+
+    private final EncoderSubsystem encoderSubsystem =
+        new EncoderSubsystem(Constants.Encoder.encoderID);
+    private final limelightSubsystem limelight =
+        new limelightSubsystem();
+    private final ThroughBoreSubsystem throughBoreSubsystem =
+        new ThroughBoreSubsystem();
 
     private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-    private final ThroughBoreSubsystem rightEncoder = new ThroughBoreSubsystem();
-    private final EncoderSubsystem leftencoder = new EncoderSubsystem();
 
-    private final LimelightResults llfront = new LimelightResults();
-    private final LimelightResults llback = new LimelightResults();
+    public RobotContainer() {
+        driveSubsystem.setDefaultCommand(
+            new DefaultDriveCommand(driveSubsystem, driveController)
+        );
 
+        configureBindings();
+        configureAutoGoTo();
+    }
+
+    private void configureBindings() {
+
+        new Trigger(() -> systemController.getCrossButton())
+        .whileTrue(
+            new ParallelCommandGroup(
+                new InstantCommand(() -> boostSubsystem.setpower(0.5)),
+                new InstantCommand(() -> inputManager.setManualPower(0.5))
+            )
+        )
+        .onFalse(new InstantCommand(() -> {
+            boostSubsystem.stopMotors();
+            inputManager.stopManual();
+        }));    
+
+        new Trigger(() -> driveController.getRawAxis(Constants.driveController.L2) > 0.2)
+            .whileTrue(new InstantCommand(() -> collectSubsystem.setPower(0.5)))
+            .onFalse(new InstantCommand(() -> collectSubsystem.stop()));
+
+        new Trigger(() -> driveController.getRawAxis(Constants.driveController.R2) > 0.2)
+            .whileTrue(new InstantCommand(() -> collectSubsystem.setPower(-0.5)))
+            .onFalse(new InstantCommand(() -> collectSubsystem.stop()));
+
+
+        new Trigger(() -> systemController.getTriangleButton())
+            .whileTrue(new InstantCommand(() -> collectManager.retractIn(0.5)))
+            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+
+        new Trigger(() -> systemController.getCircleButton())
+            .whileTrue(new InstantCommand(() -> collectManager.retractOut(0.5)))
+            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+
+        // Automáticos base (somente posição)
+        new Trigger(() -> systemController.getL1Button())
+            .onTrue(new InstantCommand(() -> angularManager.goToMin()));
+
+        new Trigger(() -> systemController.getR1Button())
+            .onTrue(new InstantCommand(() -> angularManager.goToMax()));
+    }
+
+    private void configureAutoGoTo() {
+
+        Trigger autoShootTrigger = new Trigger(
+            () -> collectManager.isPieceInside() && limelight.frontHasTarget()
+        );
     
-    // private final GoToPositionCommand goToPositionCommand = new GoToPositionCommand(
-    //     inputManager.getInputSubsystem(),
-    //     angularManager.getEncoder(),
-    //     systemController,
-    //     angularManager.getAngularSubsystem(),
-    //     llfront,
-    //     boostManager.getBoostSubsystem()
-    // );
-
-   
-    public Command getTeleopCommand() {
-        // return defaultDriveCommand.alongWith(goToPositionCommand);
+        autoShootTrigger.whileTrue(
+            new GoToPositionCommand(
+                driveSubsystem,
+                boostSubsystem,
+                collectSubsystem,
+                collectManager,
+                limelight,
+                throughBoreSubsystem
+            )
+        );
     }    
 
-  public RobotContainer() {
-    driveSubsystem.setDefaultCommand(new DefaultDriveCommand(driveSubsystem,driveController ));
-        
-      configureBindings();
-  }
-
-  private void configureBindings() {
-
-    //pos minima 
-    new Trigger(() -> systemController.getSquareButton())
-    .onTrue(new InstantCommand(() -> angularManager.calibrateMinPos()));
-
-    new Trigger(() -> systemController.getTriangleButton())
-    .onTrue(new InstantCommand(() -> angularManager.calibrateMaxPos()));
-
-    //########## MANUAL DO ANGULAR ##########
-    new Trigger(() -> systemController.getR2Axis() > 0.04)
-    .onTrue(new InstantCommand(() -> angularManager.setManual()))
-    .whileTrue(new InstantCommand(() -> angularManager.setManualPower(0.5)))
-    .onFalse(new InstantCommand(() -> angularManager.stopManual()));
-
-    new Trigger(() -> systemController.getL2Axis() > 0.04)
-    .onTrue(new InstantCommand(() -> angularManager.setManual()))
-    .whileTrue(new InstantCommand(() -> angularManager.setManualPower(-0.5)))
-    .onFalse(new InstantCommand(() -> angularManager.stopManual()));
-
-
-    //########## AUTOMÁTICO ANGULAR ##########
-    new Trigger(() -> systemController.getL1Button())
-    .onTrue(new InstantCommand(() -> angularManager.goToMin()));
-
-    new Trigger(() -> systemController.getR1Button())
-    .onTrue(new InstantCommand(() -> angularManager.goToMax()));
-
-  }
-
-  //Fazer os outros botoes do sistema assim que pegar todos os valores necessarios para liberar
-  //os que estao sendo usados na calibração e no manual 
-
-  ///// VITOR ==============
-  /// 
-  /// 
     public DriveSubsystem getDriveSubsystem() {
         return driveSubsystem;
     }
-
-    public LimeLight getLimelight() {
-        return limelight;
-    }
-
 }

@@ -12,6 +12,13 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         m_robotContainer = new RobotContainer();
+        
+        try {
+            m_robotContainer = new RobotContainer();
+            System.out.println("RobotContainer inicializado!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -23,11 +30,6 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
-        }
-
-        m_teleopCommand = m_robotContainer.getTeleopCommand();
-        if (m_teleopCommand != null) {
-            m_teleopCommand.schedule();
         }
     }
 

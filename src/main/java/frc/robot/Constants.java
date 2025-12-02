@@ -3,15 +3,15 @@ package frc.robot;
 public final class Constants {
 
 // Motor IDs
-public static final int COLLECT_MOTOR_ID = 5;
-public static final int RETRACT_MOTOR_ID = 4;
-public static final int INPUT_MOTOR_ID = 6;
-public static final int BOOST_DOWN_MOTOR_ID = 7;
-public static final int BOOST_UP_MOTOR_ID = 8;
-public static final int ANGULAR_MOTOR_ID = 9;
+public static final int COLLECT_MOTOR_ID = 6;
+public static final int RETRACT_MOTOR_ID = 5;
+public static final int INPUT_MOTOR_ID = 7;
+public static final int BOOST_DOWN_MOTOR_ID = 8;
+public static final int BOOST_UP_MOTOR_ID = 9;
+public static final int ANGULAR_MOTOR_ID = 10;
 
 // Sensor IDs
-public static final int GAME_PIECE_SENSOR_ID = 0; // sensor red
+public static final int GAME_PIECE_SENSOR_ID = 2; // sensor red
 public static final int ANGULAR_ENCODER_ID = 0;
 public static final double INPUT_MAX_OUTPUT = 0;
 
@@ -66,7 +66,7 @@ public static final int SYSTEM = 0;
     }
 
     public static final class driveController {
-        public static final int joystickID = 3;
+        public static final int joystickID = 0;
 
         public static final int eixoX = 0;
         public static final int eixoY = 1;
@@ -89,7 +89,7 @@ public static final int SYSTEM = 0;
     }
 
     public static final class PS5Controller {
-        public static final int joystickID = 0;
+        public static final int joystickID = 1;
 
         public static final int eixoX = 0;
         public static final int eixoY = 1;
@@ -122,7 +122,7 @@ public static final int SYSTEM = 0;
     }
 
     public static final class Encoder {
-        public static final int encoderId = 4;
+        public static final int encoderID = 4;
 
         public static final int portaEncoderA = 0; 
         public static final int portaEncoderB = 1;

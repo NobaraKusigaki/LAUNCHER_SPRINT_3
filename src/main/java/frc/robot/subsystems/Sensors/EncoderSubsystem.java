@@ -7,9 +7,9 @@ public class EncoderSubsystem extends SubsystemBase {
 
     private DutyCycleEncoder encoder;
 
-    public void Encoder(int port) {
+    public EncoderSubsystem(int port) {
         encoder = new DutyCycleEncoder(port);
-    }
+    }    
 
     public double getPosition() {
         return encoder.get();
