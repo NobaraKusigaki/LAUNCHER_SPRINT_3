@@ -37,6 +37,18 @@ public class CollectManager extends SubsystemBase {
     collect.setRetractPower(-power);
   }
 
+  public void pieceIn(double power) {
+    collect.setPower(power);
+  }
+
+  public void pieceOut(double power) {
+    collect.setPower(-power);
+  }
+
+  public void stopCollect() {
+    collect.stop();
+  }
+
   public void stopRetract() {
     collect.stopRetract();
   }

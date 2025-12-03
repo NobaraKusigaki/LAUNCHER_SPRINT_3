@@ -41,14 +41,7 @@ public class DefaultDriveCommand extends Command {
         double velEsq = 0;
         double velDir = 0;
 
-        double L2 = driveController.getRawAxis(Constants.driveController.L2);
-        double R2 = driveController.getRawAxis(Constants.driveController.R2);
-
-        if (L2 != 0) {
-            velEsq = velDir = math.calcularL2(L2, R2, speed);
-        } else if (R2 != 0) {
-            velEsq = velDir = -math.calcularR2(L2, R2, speed);
-        } else if (pov != -1) {
+        if (pov != -1) {
             double[] povVel = math.calcularPOV(pov, speed);
             velEsq = povVel[0];
             velDir = povVel[1];
@@ -65,8 +58,6 @@ public class DefaultDriveCommand extends Command {
         SmartDashboard.putNumber("Velocidade Direita", velDir);
         SmartDashboard.putNumber("Speed", speed);
         SmartDashboard.putNumber("POV", pov);
-        SmartDashboard.putNumber("L2", L2);
-        SmartDashboard.putNumber("R2", R2);
         SmartDashboard.putBoolean("Botao A", botaoA);
         SmartDashboard.putBoolean("Botao B", botaoB);
         SmartDashboard.putBoolean("Botao X", botaoX);

@@ -11,44 +11,44 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class BoostSubsystem extends SubsystemBase {
- SparkMax downMotor = new SparkMax(Constants.BOOST_DOWN_MOTOR_ID, SparkMax.MotorType.kBrushed);
- SparkMax upMotor = new SparkMax(Constants.BOOST_UP_MOTOR_ID, SparkMax.MotorType.kBrushed);
 
-  public BoostSubsystem() {
+    SparkMax downMotor = new SparkMax(Constants.BOOST_DOWN_MOTOR_ID, SparkMax.MotorType.kBrushed);
+    SparkMax upMotor = new SparkMax(Constants.BOOST_UP_MOTOR_ID, SparkMax.MotorType.kBrushed);
 
-    SparkMaxConfig downConfig = new SparkMaxConfig();
-    downConfig.idleMode(IdleMode.kBrake);
-    downConfig.inverted(false);
+    public BoostSubsystem() {
+        SparkMaxConfig downConfig = new SparkMaxConfig();
+        downConfig.idleMode(IdleMode.kBrake);
+        downConfig.inverted(false);
 
-    downMotor.configure(downConfig, 
-    ResetMode.kResetSafeParameters, 
-    PersistMode.kPersistParameters);
+        downMotor.configure(
+            downConfig,
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters
+        );
 
-    SparkMaxConfig upConfig = new SparkMaxConfig();
-    upConfig.idleMode(IdleMode.kBrake);
-    upConfig.inverted(false);
+        SparkMaxConfig upConfig = new SparkMaxConfig();
+        upConfig.idleMode(IdleMode.kBrake);
+        upConfig.follow(downMotor); 
 
-    upMotor.configure(upConfig,
-    ResetMode.kResetSafeParameters,
-    PersistMode.kPersistParameters);
-    
-  }
-  public double setpower(double power ){
-    downMotor.set(power);
-    upMotor.set(power);
-    return power;
-  }
+        upMotor.configure(
+            upConfig,
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters
+        );
+    }
 
-  public void stopMotors(){
-    downMotor.stopMotor();
-    upMotor.stopMotor();
-  }
+    public double setpower(double power) {
+        downMotor.set(power); 
+        return power;
+    }
 
+    public void stopMotors() {
+        downMotor.stopMotor();
+    }
 
-  @Override
-  public void periodic() {
-  SmartDashboard.putNumber("Boost Down Motor Power", downMotor.get());
-  SmartDashboard.putNumber("Boost Up Motor Power", upMotor.get());
-
-  }
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Boost Down Motor Power", downMotor.get());
+        SmartDashboard.putNumber("Boost Up Motor Power", upMotor.get());
+    }
 }

@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import frc.robot.subsystems.Locomotion.DriveSubsystem;
-import frc.robot.subsystems.Score.AngularManager;
 import frc.robot.subsystems.Score.BoostManager;
 import frc.robot.subsystems.Score.BoostSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
@@ -26,12 +24,10 @@ import frc.robot.commands.GoToPositionCommand;
 public class RobotContainer {
 
     private final PS5Controller systemController = new PS5Controller(1);
-    private final Joystick driveController =
-        new Joystick(Constants.driveController.joystickID);
+    private final Joystick driveController = new Joystick(0);
 
     private final CollectSubsystem collectSubsystem = new CollectSubsystem();
     private final BoostSubsystem boostSubsystem = new BoostSubsystem();
-    private final AngularManager angularManager = new AngularManager();
 
     private final BoostManager boostManager =
         new BoostManager(boostSubsystem, collectSubsystem);
@@ -71,29 +67,23 @@ public class RobotContainer {
             inputManager.stopManual();
         }));    
 
-        new Trigger(() -> driveController.getRawAxis(Constants.driveController.L2) > 0.2)
-            .whileTrue(new InstantCommand(() -> collectSubsystem.setPower(0.5)))
-            .onFalse(new InstantCommand(() -> collectSubsystem.stop()));
+        new Trigger(() -> systemController.getL2Axis() > 0.04)
+            .whileTrue(new InstantCommand(() -> collectManager.pieceIn(0.3)))
+            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
 
-        new Trigger(() -> driveController.getRawAxis(Constants.driveController.R2) > 0.2)
-            .whileTrue(new InstantCommand(() -> collectSubsystem.setPower(-0.5)))
-            .onFalse(new InstantCommand(() -> collectSubsystem.stop()));
-
+        new Trigger(() -> systemController.getR2Axis() > 0.04)
+            .whileTrue(new InstantCommand(() -> collectManager.pieceOut(-0.3)))
+            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
 
         new Trigger(() -> systemController.getTriangleButton())
-            .whileTrue(new InstantCommand(() -> collectManager.retractIn(0.5)))
+            .whileTrue(new InstantCommand(() -> collectManager.retractIn(0.3)))
             .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
 
         new Trigger(() -> systemController.getCircleButton())
-            .whileTrue(new InstantCommand(() -> collectManager.retractOut(0.5)))
+            .whileTrue(new InstantCommand(() -> collectManager.retractOut(0.3)))
             .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
 
-        // Automáticos base (somente posição)
-        new Trigger(() -> systemController.getL1Button())
-            .onTrue(new InstantCommand(() -> angularManager.goToMin()));
-
-        new Trigger(() -> systemController.getR1Button())
-            .onTrue(new InstantCommand(() -> angularManager.goToMax()));
+       
     }
 
     private void configureAutoGoTo() {
