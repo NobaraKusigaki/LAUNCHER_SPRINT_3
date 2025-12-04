@@ -25,7 +25,7 @@ public class InputSubsystem extends SubsystemBase {
     PersistMode.kPersistParameters);
   }
 
-  public void setPower(double power) {
+  public void setSubsystemPower(double power) {
     inputMotor.set(power);
   }
 

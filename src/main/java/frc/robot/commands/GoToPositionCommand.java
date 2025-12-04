@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Score.BoostSubsystem;
-import frc.robot.subsystems.Score.CollectSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Sensors.limelightSubsystem;
 import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
@@ -17,7 +16,6 @@ public class GoToPositionCommand extends Command {
 
     private final DriveSubsystem drive;
     private final BoostSubsystem boost;
-    private final CollectSubsystem collect;
     private final CollectManager collectManager;
     private final limelightSubsystem lime;
     private final ThroughBoreSubsystem throughBore;
@@ -32,19 +30,17 @@ public class GoToPositionCommand extends Command {
     public GoToPositionCommand(
         DriveSubsystem drive,
         BoostSubsystem boost,
-        CollectSubsystem collect,
         CollectManager collectManager,
         limelightSubsystem lime,
         ThroughBoreSubsystem throughBore
     ) {
         this.drive = drive;
         this.boost = boost;
-        this.collect = collect;
         this.collectManager = collectManager;
         this.lime = lime;
         this.throughBore = throughBore;
 
-        addRequirements(drive, boost, collect);
+        addRequirements(drive, boost);
     }
 
     @Override
@@ -64,7 +60,6 @@ public class GoToPositionCommand extends Command {
 
         if (!hasPiece || !hasTarget) {
             boost.stopMotors();
-            collect.stopRetract();
             drive.drive(0, 0); 
             state = State.ALIGN;
             SmartDashboard.putString("GoTo/STATE", "WAITING");
@@ -103,8 +98,7 @@ public class GoToPositionCommand extends Command {
                 double errorRPM = targetRPM - currentRPM;
                 double outRPM = MathUtil.clamp(errorRPM * 0.0004, -1, 1);
 
-                boost.setpower(outRPM);
-                collect.setRetractPower(0.25);
+                boost.setpower(-outRPM);
 
                 SmartDashboard.putNumber("GoTo/RPM Target", targetRPM);
                 SmartDashboard.putNumber("GoTo/RPM Current", currentRPM);
@@ -141,6 +135,5 @@ public class GoToPositionCommand extends Command {
     public void end(boolean interrupted) {
         drive.drive(0, 0);
         boost.stopMotors();
-        collect.stopRetract();
     }
 }

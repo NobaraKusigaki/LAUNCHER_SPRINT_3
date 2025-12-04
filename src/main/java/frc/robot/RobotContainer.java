@@ -2,10 +2,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Locomotion.DriveSubsystem;
 import frc.robot.subsystems.Score.BoostManager;
@@ -13,7 +12,6 @@ import frc.robot.subsystems.Score.BoostSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Score.CollectSubsystem;
 import frc.robot.subsystems.Score.InputManager;
-import frc.robot.subsystems.Score.InputSubsystem;
 import frc.robot.subsystems.Sensors.EncoderSubsystem;
 import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
 import frc.robot.subsystems.Sensors.limelightSubsystem;
@@ -56,35 +54,42 @@ public class RobotContainer {
     private void configureBindings() {
 
         new Trigger(() -> systemController.getCrossButton())
-        .whileTrue(
-            new ParallelCommandGroup(
-                new InstantCommand(() -> boostSubsystem.setpower(0.5)),
-                new InstantCommand(() -> inputManager.setManualPower(0.5))
+            .whileTrue(
+                new RunCommand(
+                    () -> inputManager.setPower(0.3),
+                    inputManager
+                )
             )
-        )
-        .onFalse(new InstantCommand(() -> {
-            boostSubsystem.stopMotors();
-            inputManager.stopManual();
-        }));    
-
-        new Trigger(() -> systemController.getL2Axis() > 0.04)
-            .whileTrue(new InstantCommand(() -> collectManager.pieceIn(0.3)))
-            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
-
-        new Trigger(() -> systemController.getR2Axis() > 0.04)
-            .whileTrue(new InstantCommand(() -> collectManager.pieceOut(-0.3)))
-            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
+            .onFalse(new InstantCommand(() -> inputManager.stopManual()));
 
         new Trigger(() -> systemController.getTriangleButton())
-            .whileTrue(new InstantCommand(() -> collectManager.retractIn(0.3)))
-            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+            .whileTrue(
+                new RunCommand(
+                    () -> inputManager.setPower(-0.3),
+                    inputManager
+                )
+            )
+            .onFalse(new InstantCommand(() -> inputManager.stopManual()));
 
         new Trigger(() -> systemController.getCircleButton())
-            .whileTrue(new InstantCommand(() -> collectManager.retractOut(0.3)))
-            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+            .whileTrue(
+                new RunCommand(
+                    () -> boostSubsystem.setpower(0.2),
+                    boostSubsystem
+                )
+            )
+            .onFalse(new InstantCommand(() -> boostSubsystem.stopMotors()));
 
-       
+        new Trigger(() -> systemController.getSquareButton())
+            .whileTrue(
+                new RunCommand(
+                    () -> boostSubsystem.setpower(-0.2),
+                    boostSubsystem
+                )
+            )
+            .onFalse(new InstantCommand(() -> boostSubsystem.stopMotors()));
     }
+
 
     private void configureAutoGoTo() {
 
@@ -96,7 +101,6 @@ public class RobotContainer {
             new GoToPositionCommand(
                 driveSubsystem,
                 boostSubsystem,
-                collectSubsystem,
                 collectManager,
                 limelight,
                 throughBoreSubsystem

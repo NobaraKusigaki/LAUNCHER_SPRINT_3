@@ -29,7 +29,7 @@ public class InputManager extends SubsystemBase {
     power = Math.max(
         Math.min(power, Constants.INPUT_MAX_OUTPUT),
         -Constants.INPUT_MAX_OUTPUT);
-    input.setPower(power);
+    input.setSubsystemPower(power);
   }
 
   public void stopManual() {
@@ -49,5 +49,10 @@ public class InputManager extends SubsystemBase {
         input.stopMotor();
         break;
     }
+  }
+
+  public double setPower(double power) {
+    input.setSubsystemPower(power);
+    return power;
   }
 }
