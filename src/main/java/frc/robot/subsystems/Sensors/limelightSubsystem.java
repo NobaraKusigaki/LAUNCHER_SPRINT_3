@@ -7,11 +7,10 @@ import frc.robot.Constants;
 public class limelightSubsystem {
 
     private final NetworkTable llFront;
-    private final NetworkTable llBack;
+    private boolean aligned = false;
 
     public limelightSubsystem() {
         llFront = NetworkTableInstance.getDefault().getTable(Constants.LimeLight.limelightFront);
-        llBack = NetworkTableInstance.getDefault().getTable(Constants.LimeLight.limelightBack);
     }
 
     public double getFrontTX() { return llFront.getEntry("tx").getDouble(0); }
@@ -20,13 +19,11 @@ public class limelightSubsystem {
     public int getFrontTargetId() { return (int) llFront.getEntry("tid").getInteger(-1); }
     public boolean frontHasTarget() { return llFront.getEntry("tv").getDouble(0) == 1; }
 
-    public double getBackTX() { return llBack.getEntry("tx").getDouble(0); }
-    public double getBackTY() { return llBack.getEntry("ty").getDouble(0); }
-    public double getBackTA() { return llBack.getEntry("ta").getDouble(0); }
-    public int getBackTargetId() { return (int) llBack.getEntry("tid").getInteger(-1); }
-    public boolean backHasTarget() { return llBack.getEntry("tv").getDouble(0) == 1; }
+    public void setAligned(boolean value) {
+        aligned = value;
+    }
 
-    public boolean anyHasTarget() {
-        return frontHasTarget() || backHasTarget();
+    public boolean isAligned() {
+        return aligned;
     }
 }

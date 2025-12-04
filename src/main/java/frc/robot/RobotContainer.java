@@ -12,7 +12,6 @@ import frc.robot.subsystems.Score.BoostSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Score.CollectSubsystem;
 import frc.robot.subsystems.Score.InputManager;
-import frc.robot.subsystems.Sensors.EncoderSubsystem;
 import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
 import frc.robot.subsystems.Sensors.limelightSubsystem;
 
@@ -33,8 +32,6 @@ public class RobotContainer {
         new CollectManager(collectSubsystem);
     private final InputManager inputManager = new InputManager();
 
-    private final EncoderSubsystem encoderSubsystem =
-        new EncoderSubsystem(Constants.Encoder.encoderID);
     private final limelightSubsystem limelight =
         new limelightSubsystem();
     private final ThroughBoreSubsystem throughBoreSubsystem =
@@ -53,6 +50,46 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+        // RETRACT
+        new Trigger(() -> systemController.getL1Button())
+            .whileTrue(
+                new RunCommand(
+                    () -> collectManager.retractOut(0.3),
+                    collectManager
+                )
+            )
+            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+
+        new Trigger(() -> systemController.getR1Button())
+            .whileTrue(
+                new RunCommand(
+                    () -> collectManager.retractIn(-0.3),
+                    collectManager
+                )
+            )
+            .onFalse(new InstantCommand(() -> collectManager.stopRetract()));
+
+        // COLLECT
+        new Trigger(() -> systemController.getR3Button())
+            .whileTrue(
+                new RunCommand(
+                    () -> collectManager.pieceIn(0.5),
+                    collectManager
+                )
+            )
+            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
+
+        new Trigger(() -> systemController.getL3Button())
+            .whileTrue(
+                new RunCommand(
+                    () -> collectManager.pieceOut(-0.5),
+                    collectManager
+                )
+            )
+            .onFalse(new InstantCommand(() -> collectManager.stopCollect()));
+
+
+        // INPUT
         new Trigger(() -> systemController.getCrossButton())
             .whileTrue(
                 new RunCommand(
@@ -71,6 +108,7 @@ public class RobotContainer {
             )
             .onFalse(new InstantCommand(() -> inputManager.stopManual()));
 
+        // BOOST
         new Trigger(() -> systemController.getCircleButton())
             .whileTrue(
                 new RunCommand(
@@ -84,6 +122,24 @@ public class RobotContainer {
             .whileTrue(
                 new RunCommand(
                     () -> boostSubsystem.setpower(-0.2),
+                    boostSubsystem
+                )
+            )
+            .onFalse(new InstantCommand(() -> boostSubsystem.stopMotors()));
+            
+        new Trigger(() -> systemController.getL2Axis() > 0.05)
+            .whileTrue(
+                new RunCommand(
+                    () -> boostSubsystem.setpower(systemController.getL2Axis() * 1.0),
+                    boostSubsystem
+                )
+            )
+            .onFalse(new InstantCommand(() -> boostSubsystem.stopMotors()));
+
+        new Trigger(() -> systemController.getR2Axis() > 0.05)
+            .whileTrue(
+                new RunCommand(
+                    () -> boostSubsystem.setpower(-systemController.getR2Axis() * 1.0),
                     boostSubsystem
                 )
             )

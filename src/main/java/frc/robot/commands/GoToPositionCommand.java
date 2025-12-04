@@ -1,13 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Timer;
+
 import frc.robot.Constants;
 import frc.robot.subsystems.Score.BoostSubsystem;
 import frc.robot.subsystems.Score.CollectManager;
 import frc.robot.subsystems.Sensors.limelightSubsystem;
 import frc.robot.subsystems.Sensors.ThroughBoreSubsystem;
 import frc.robot.subsystems.Locomotion.DriveSubsystem;
-
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,12 +21,14 @@ public class GoToPositionCommand extends Command {
     private final limelightSubsystem lime;
     private final ThroughBoreSubsystem throughBore;
 
-    private enum State { ALIGN, SHOOT, DONE }
+    private enum State { ALIGN, SHOOT, WAIT_END }
     private State state = State.ALIGN;
 
-    private static final double kP_align = 0.02;
-    private static final double maxTurnPower = 0.3;
-    private static final double alignDeadband = 1.5;
+    private static final double kP_align = Constants.LimeLight.kP_align;
+    private static final double maxTurnPower = Constants.LimeLight.maxTurnPower;
+    private static final double alignDeadband = Constants.LimeLight.alignDeadband;
+
+    private final Timer shootTimer = new Timer();
 
     public GoToPositionCommand(
         DriveSubsystem drive,
@@ -46,6 +49,8 @@ public class GoToPositionCommand extends Command {
     @Override
     public void initialize() {
         state = State.ALIGN;
+        shootTimer.stop();
+        shootTimer.reset();
         SmartDashboard.putString("GoTo/STATE", "ALIGN");
     }
 
@@ -60,16 +65,15 @@ public class GoToPositionCommand extends Command {
 
         if (!hasPiece || !hasTarget) {
             boost.stopMotors();
-            drive.drive(0, 0); 
+            drive.drive(0, 0);
             state = State.ALIGN;
-            SmartDashboard.putString("GoTo/STATE", "WAITING");
+            SmartDashboard.putString("GoTo/STATE", "WAITING (NO PIECE/TAG)");
             return;
         }
 
         switch (state) {
 
             case ALIGN:
-
                 double tx = lime.getFrontTX();
                 SmartDashboard.putNumber("GoTo/TX", tx);
 
@@ -81,36 +85,40 @@ public class GoToPositionCommand extends Command {
                 }
 
                 double turnCmd = MathUtil.clamp(tx * kP_align, -maxTurnPower, maxTurnPower);
-
-                double left = turnCmd;
-                double right = -turnCmd;
-
-                drive.drive(left, right);
-
+                drive.drive(turnCmd, -turnCmd);
             break;
 
             case SHOOT:
 
                 double dist = calcDistance(lime.getFrontTY());
                 double targetRPM = calcShootRPM(dist);
-                double currentRPM = throughBore.getRPM();
+                double motorRPM = throughBore.getRPM();
+                double outputRPM = motorRPM / 100.0; 
 
-                double errorRPM = targetRPM - currentRPM;
+                double errorRPM = targetRPM - motorRPM;
                 double outRPM = MathUtil.clamp(errorRPM * 0.0004, -1, 1);
 
                 boost.setpower(-outRPM);
 
                 SmartDashboard.putNumber("GoTo/RPM Target", targetRPM);
-                SmartDashboard.putNumber("GoTo/RPM Current", currentRPM);
+                SmartDashboard.putNumber("GoTo/RPM Current", motorRPM);
+                SmartDashboard.putNumber("GoTo/RPM Output", outputRPM);
 
                 if (Math.abs(errorRPM) <= 80) {
-                    state = State.DONE;
-                    SmartDashboard.putString("GoTo/STATE", "DONE");
+                    shootTimer.restart();
+                    state = State.WAIT_END;
+                    SmartDashboard.putString("GoTo/STATE", "WAIT_END");
                 }
             break;
 
-            case DONE:
-                drive.drive(0, 0);
+            case WAIT_END:
+
+                if (shootTimer.get() >= 5.0) {
+                    boost.stopMotors();
+                    collectManager.setPieceInside(false);
+                    lime.setAligned(false);
+                    drive.drive(0, 0);
+                }
             break;
         }
     }
@@ -128,12 +136,13 @@ public class GoToPositionCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return state == State.DONE;
+        return (state == State.WAIT_END && shootTimer.get() >= 5.0);
     }
 
     @Override
     public void end(boolean interrupted) {
         drive.drive(0, 0);
         boost.stopMotors();
+        shootTimer.stop();
     }
 }

@@ -12,7 +12,6 @@ public static final int ANGULAR_MOTOR_ID = 10;
 
 // Sensor IDs
 public static final int GAME_PIECE_SENSOR_ID = 2; // sensor red
-public static final int ANGULAR_ENCODER_ID = 0;
 public static final double INPUT_MAX_OUTPUT = 0;
 
 public static final double BOOST_POWER = 0.5;
@@ -36,7 +35,6 @@ public static final int SYSTEM = 0;
 
     public static final class LimeLight {
       public static final String limelightFront = "limelight-front";
-      public static final String limelightBack = "limelight-back";
 
         public static final double kP_Distance = 0.04;
         public static final double kP_Aim = 0.02;
@@ -51,6 +49,10 @@ public static final int SYSTEM = 0;
         public static final double limeLightHeight = 0.60;
         public static final double tagHeight = 1.22;
         public static final double limeLightAngle = 25.0;
+
+        public static final double kP_align = 0.02;
+        public static final double maxTurnPower = 0.3;
+        public static final double alignDeadband = 10;
     }
 
     public static final class Drivetrain {
@@ -122,8 +124,6 @@ public static final int SYSTEM = 0;
     }
 
     public static final class Encoder {
-        public static final int encoderID = 4;
-
         public static final int portaEncoderA = 0; 
         public static final int portaEncoderB = 1;
 

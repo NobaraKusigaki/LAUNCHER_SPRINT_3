@@ -29,6 +29,10 @@ public class CollectManager extends SubsystemBase {
     return lastState;
   }
 
+  public void setPieceInside(boolean state) {
+    lastState = state;
+  }
+
   public void retractIn(double power) {
     collect.setRetractPower(power);
   }
