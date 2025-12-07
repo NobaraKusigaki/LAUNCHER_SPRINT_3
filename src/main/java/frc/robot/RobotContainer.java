@@ -112,7 +112,7 @@ public class RobotContainer {
         new Trigger(() -> systemController.getCircleButton())
             .whileTrue(
                 new RunCommand(
-                    () -> boostSubsystem.setpower(0.2),
+                    () -> boostSubsystem.setpower(0.7),
                     boostSubsystem
                 )
             )
@@ -121,7 +121,7 @@ public class RobotContainer {
         new Trigger(() -> systemController.getSquareButton())
             .whileTrue(
                 new RunCommand(
-                    () -> boostSubsystem.setpower(-0.2),
+                    () -> boostSubsystem.setpower(-0.7),
                     boostSubsystem
                 )
             )
